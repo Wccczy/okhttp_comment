@@ -491,7 +491,7 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
     CertificatePinner certificatePinner;
     Authenticator proxyAuthenticator;
     Authenticator authenticator;
-  //连接池
+    //连接池
     ConnectionPool connectionPool;
     //域名解析系统
     Dns dns;
@@ -570,6 +570,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
      * <p>The call timeout spans the entire call: resolving DNS, connecting, writing the request
      * body, server processing, and reading the response body. If the call requires redirects or
      * retries all must complete within one timeout period.
+     * timeout不是指单纯客户端访问服务端的时间，而是指触发call到response回来的整个过程的时间，如果ping服务器的时候
+     * 就花了很多时间，即使call succeed，但是回来的时候处理response时候就timeout了，那也算timeout
      */
     public Builder callTimeout(long timeout, TimeUnit unit) {
       callTimeout = checkDuration("timeout", timeout, unit);
@@ -689,6 +691,7 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
      * calls it is carrying {@linkplain IOException will fail with an IOException}.
      *
      * <p>The default value of 0 disables client-initiated pings.
+     * 用来设定一个心跳连接两次ping之间的时间间隔，如果超过时间服务器没有response，就视为断开连接
      */
     public Builder pingInterval(long interval, TimeUnit unit) {
       pingInterval = checkDuration("interval", interval, unit);
@@ -718,6 +721,7 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
      * Sets the HTTP proxy that will be used by connections created by this client. This takes
      * precedence over {@link #proxySelector}, which is only honored when this proxy is null (which
      * it is by default). To disable proxy use completely, call {@code proxy(Proxy.NO_PROXY)}.
+     * 设置代理
      */
     public Builder proxy(@Nullable Proxy proxy) {
       this.proxy = proxy;
@@ -731,6 +735,7 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
      *
      * <p>If unset, the {@link ProxySelector#getDefault() system-wide default} proxy selector will
      * be used.
+     * 设置一组代理的选择器，然后用里面的策略，ping到通为止
      */
     public Builder proxySelector(ProxySelector proxySelector) {
       if (proxySelector == null) throw new NullPointerException("proxySelector == null");
@@ -1022,6 +1027,7 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
      * Returns a modifiable list of interceptors that observe the full span of each call: from
      * before the connection is established (if any) until after the response source is selected
      * (either the origin server, cache, or both).
+     * 和下面的networkinterceptors不一样，这个是一个全flow的拦截器，从建立连接，到接受到result都可以拦截
      */
     public List<Interceptor> interceptors() {
       return interceptors;
@@ -1037,6 +1043,7 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
      * Returns a modifiable list of interceptors that observe a single network request and response.
      * These interceptors must call {@link Interceptor.Chain#proceed} exactly once: it is an error
      * for a network interceptor to short-circuit or repeat a network request.
+     * 这个其实是仅仅拦截一次网络请求的request和response，至于怎么建立的，怎么释放连接的，需要用上面的那个
      */
     public List<Interceptor> networkInterceptors() {
       return networkInterceptors;

@@ -21,6 +21,8 @@ import okio.Timeout;
 /**
  * A call is a request that has been prepared for execution. A call can be canceled. As this object
  * represents a single request/response pair (stream), it cannot be executed twice.
+ * 一个call就能被执行一次，如果想要执行两次一毛一样的all，需要用Call.clone
+ * call能够被取消，它代表着一次请求和结果, 需要宏观理解它
  */
 public interface Call extends Cloneable {
   /** Returns the original request that initiated this call. */

@@ -43,6 +43,7 @@ public abstract class RequestBody {
   /**
    * Returns a new request body that transmits {@code content}. If {@code contentType} is non-null
    * and lacks a charset, this will use UTF-8.
+   * 默认把content给格式化为UTF-8的格式，
    */
   public static RequestBody create(@Nullable MediaType contentType, String content) {
     Charset charset = Util.UTF_8;

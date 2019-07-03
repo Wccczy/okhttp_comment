@@ -199,6 +199,7 @@ public final class Request {
      *
      * <p>Note that for some headers including {@code Content-Length} and {@code Content-Encoding},
      * OkHttp may replace {@code value} with a header derived from the request body.
+     * 设置的有一些头部信息，okhttp会根据请求体自动去调整
      */
     public Builder addHeader(String name, String value) {
       headers.add(name, value);
